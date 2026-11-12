@@ -49,6 +49,10 @@ header span{color:var(--sub);font-size:13px}
 .notes ul{margin:4px 0;padding-left:20px}
 .notes li{margin:2px 0}
 .notes p{margin:6px 0}
+.notes li>p{margin:0}
+.notes img{display:block;width:100%;max-width:390px;height:auto;margin:8px 0 14px;border-radius:14px;border:1px solid var(--line);background:var(--bg)}
+.notes a.img{display:block;max-width:390px}
+.notes a{color:var(--acc)}
 .banner{display:none;background:var(--warn-soft);color:var(--ink);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);border-radius:14px;padding:16px;margin-bottom:14px}
 .banner b{color:var(--warn)}
 .banner p{margin:6px 0 0;font-size:14px}
@@ -224,7 +228,7 @@ footer a{color:var(--sub)}
   }
   function fmtSize(b) { return b >= 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.round(b / 1024) + " KB"; }
 
-  // 릴리즈 설명(마크다운 일부: ## 제목, - 목록, **굵게**)을 안전하게 그림
+  // 릴리즈 설명(마크다운 일부: ## 제목, - 목록, **굵게**)을 안전하게 그림 — body_html을 못 받았을 때만 씀
   function esc(s) { return s.replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function inline(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>"); }
   function renderNotes(md) {
@@ -241,6 +245,42 @@ footer a{color:var(--sub)}
     return out.join("");
   }
 
+  // GitHub이 그린 설명(body_html)을 허용한 태그 · 속성만 남겨 넣음 — 이미지(<img> · 끌어다 놓은 사진)도 보임
+  //   사진 주소는 GitHub이 몇 분짜리 서명 주소로 바꿔 주므로 페이지를 열 때마다 새로 받음
+  var IMG_OK = /^https:\/\/(private-user-images\.githubusercontent\.com|user-images\.githubusercontent\.com|raw\.githubusercontent\.com|github\.com\/user-attachments|camo\.githubusercontent\.com)\//;
+  var TAGS = { P: "p", UL: "ul", OL: "ol", LI: "li", STRONG: "b", B: "b", EM: "i", I: "i", CODE: "code", BR: "br", HR: "hr",
+               H1: "h3", H2: "h3", H3: "h3", H4: "h3", H5: "h3", H6: "h3", BLOCKQUOTE: "p", A: "a", IMG: "img" };
+  function cleanHtml(html) {
+    var src = new DOMParser().parseFromString("<div>" + html + "</div>", "text/html").body.firstChild;
+    function walk(n, out) {
+      for (var c = n.firstChild; c; c = c.nextSibling) {
+        if (c.nodeType === 3) { out.appendChild(document.createTextNode(c.nodeValue)); continue; }
+        if (c.nodeType !== 1) continue;
+        var t = TAGS[c.tagName];
+        if (!t) { if (!/^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|svg|SVG|TEMPLATE)$/.test(c.tagName)) walk(c, out); continue; }   // 모르는 태그는 글자만
+        if (t === "img") {
+          var u = c.getAttribute("src") || "";
+          if (!IMG_OK.test(u)) continue;
+          var im = document.createElement("img");
+          im.src = u; im.alt = c.getAttribute("alt") || ""; im.loading = "lazy"; im.decoding = "async";
+          var w = +c.getAttribute("width"), h = +c.getAttribute("height");
+          if (w > 0 && h > 0) { im.width = w; im.height = h; }   // 자리 미리 잡기 (CSS가 폭을 줄임)
+          out.appendChild(im); continue;
+        }
+        var e = document.createElement(t);
+        if (t === "a") {
+          var href = c.getAttribute("href") || "";
+          if (!/^https:\/\//.test(href)) { walk(c, out); continue; }
+          e.href = href; e.target = "_blank"; e.rel = "noopener noreferrer";
+          if (c.querySelector("img")) e.className = "img";
+        }
+        walk(c, e); out.appendChild(e);
+      }
+    }
+    var box = document.createElement("div"); walk(src, box);
+    return box;
+  }
+
   function showLatest(rel) {
     var a = pickAsset(rel), v = a ? parseName(a.name) : null;
     $("ver").textContent = v ? v.main : (rel.name || rel.tag_name || "최신 버전");
@@ -251,6 +291,10 @@ footer a{color:var(--sub)}
       $("dl").setAttribute("download", a.name);
       $("dlT").textContent = "펌웨어 받기 · " + fmtSize(a.size);
       $("fname").textContent = a.name;
+    }
+    if (rel.body_html && rel.body_html.trim()) {
+      try { var box = cleanHtml(rel.body_html); $("notes").textContent = ""; while (box.firstChild) $("notes").appendChild(box.firstChild); $("notes").hidden = false; return; }
+      catch (e) { /* 아래 글자 방식으로 */ }
     }
     if (rel.body && rel.body.trim()) { $("notes").innerHTML = renderNotes(rel.body); $("notes").hidden = false; }
   }
@@ -270,7 +314,7 @@ footer a{color:var(--sub)}
     $("dlT").textContent = "배포 페이지에서 받기";
   }
 
-  fetch(API + "?per_page=" + (OLD_MAX + 1), { headers: { "Accept": "application/vnd.github+json" } })
+  fetch(API + "?per_page=" + (OLD_MAX + 1), { headers: { "Accept": "application/vnd.github.full+json" } })
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(function (list) {
       list = (list || []).filter(function (r) { return !r.draft && !r.prerelease; });
