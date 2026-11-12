@@ -111,18 +111,17 @@ a.row svg{color:var(--sub);flex:0 0 auto}
 </div>
 
 <section class="card" aria-labelledby="latestT">
-  <div class="lbl" id="latestT">최신 사용설명서</div>
-  <div class="ver" id="ver">v3</div>
-  <div class="vsub" id="vsub">2026-11-12 · 판매 펌웨어 <b>26.11.12.165</b> 기준 · PDF 6.0 MB</div>
-  <a class="btn" data-pdf href="TuFModule_manual.pdf?v=3">
+  <div class="lbl" id="latestT">TuFModule</div>
+  <div class="ver">최신 사용설명서</div>
+  <div class="vsub" id="vsub">2026-11-13 · 펌웨어 버전 <b>26.11.12.165</b> 기준 · <span style="white-space:nowrap">PDF 6.0 MB</span></div>
+  <a class="btn" data-pdf href="TuFModule_manual.pdf?v=202611130030">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3.5h7l4.5 4.5v12.5H7z M14 3.5V8h4.5 M10 12.5h5.5 M10 16h5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span>설명서 보기</span>
   </a>
-  <a class="btn ghost" data-pdf href="TuFModule_manual.pdf?v=3" download="TuFModule_manual.pdf">
+  <a class="btn ghost" data-pdf href="TuFModule_manual.pdf?v=202611130030" download="TuFModule_manual.pdf">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span>휴대폰에 저장</span>
   </a>
-  <div class="fname">제품에 들어 있는 설명서와 같은 내용입니다 · A5 24쪽</div>
 </section>
 
 <section class="card" aria-labelledby="tocT">
@@ -156,32 +155,26 @@ a.row svg{color:var(--sub);flex:0 0 auto}
   </a>
 </section>
 
-<section class="card" aria-labelledby="oldT" id="oldCard" hidden>
-  <h2 id="oldT">지난 판</h2>
-  <!-- 예: <div class="old"><span>v3 · 2026-11-12 · 펌웨어 26.11.12.165</span><a href="old/TuFModule_manual_v3.pdf">받기</a></div> -->
-  <p class="note">지난 펌웨어를 쓰고 있을 때만 필요합니다.</p>
-</section>
-
 <footer>
-  설명서 내용은 펌웨어가 바뀌면 함께 고쳐 이 페이지에 올립니다.<br>
-  <span id="storeLine" hidden>문의: <a id="storeLink" href="#">스마트스토어 문의하기</a><br></span>
+  설명서 내용은 최신 펌웨어에 맞게끔 주기적으로 업데이트 됩니다.<br>
+  <span id="storeLine" hidden>문의: <a id="storeLink" href="#">스마트스토어 Q&amp;A</a><br></span>
   © TuFLabs
 </footer>
 </div>
 
 <script>
 (function () {
-  // ===== 설정 (새 판을 올릴 때 여기 VER와 위 '최신 사용설명서' 글자만 고침) =====
+  // ===== 설정 (새 PDF를 올릴 때 여기 VER와 위 '업데이트' 날짜 · 쪽 수 · 크기만 고침) =====
+  // 판 번호는 화면에 보이지 않음 (사용자 2026-11-12: 늘 최신 설명서만)
   var PDF = "TuFModule_manual.pdf";
-  var VER = 3;          // 판 번호 — 바꾸면 휴대폰에 남아 있는 예전 PDF 대신 새 PDF를 받음
-  var STORE_URL = "";   // 스마트스토어 주소를 넣으면 아래 '문의' 줄이 보임
+  var VER = "202611130030"; // 올린 날짜(같은 날 다시 올리면 시각까지) — 바꾸면 휴대폰에 남아 있는 예전 PDF 대신 새 PDF를 받음 (화면에 안 보임)
+  var STORE_URL = "https://mkt.shopping.naver.com/link/6af5cdc349689b475d360787";   // 스마트스토어 주소를 넣으면 아래 '문의' 줄이 보임
   // =====================================================================
   var $ = function (id) { return document.getElementById(id); };
   var src = PDF + "?v=" + VER;
 
   document.querySelectorAll("a[data-pdf]").forEach(function (a) { a.href = src; });
   document.querySelectorAll("a[data-page]").forEach(function (a) { a.href = src + "#page=" + a.getAttribute("data-page"); });
-  if ($("oldCard").querySelector(".old")) $("oldCard").hidden = false;
   if (STORE_URL) { $("storeLink").href = STORE_URL; $("storeLine").hidden = false; }
 
   // ---- 앱 안 브라우저 안내 (펌웨어 페이지와 같음) ----
