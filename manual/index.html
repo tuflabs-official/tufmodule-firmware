@@ -113,12 +113,12 @@ a.row svg{color:var(--sub);flex:0 0 auto}
 <section class="card" aria-labelledby="latestT">
   <div class="lbl" id="latestT">TuFModule</div>
   <div class="ver">최신 사용설명서</div>
-  <div class="vsub" id="vsub">2026-11-13 · 펌웨어 버전 <b>26.11.13.151</b> 기준 · <span style="white-space:nowrap">PDF 6.8 MB</span></div>
-  <a class="btn" data-pdf href="TuFModule_manual.pdf?v=202611130610">
+  <div class="vsub" id="vsub">2026-11-14 · 펌웨어 버전 <b>26.11.14.035</b> 기준 · <span style="white-space:nowrap">PDF 6.4 MB</span></div>
+  <a class="btn" data-pdf href="TuFModule_manual.pdf?v=202611140420">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3.5h7l4.5 4.5v12.5H7z M14 3.5V8h4.5 M10 12.5h5.5 M10 16h5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span>설명서 보기</span>
   </a>
-  <a class="btn ghost" data-pdf href="TuFModule_manual.pdf?v=202611130610" download="TuFModule_manual.pdf">
+  <a class="btn ghost" data-pdf href="TuFModule_manual.pdf?v=202611140420" download="TuFModule_manual.pdf">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span>휴대폰에 저장</span>
   </a>
@@ -138,11 +138,12 @@ a.row svg{color:var(--sub);flex:0 0 auto}
     <a data-page="15" class="sub"><i></i><span>Wi-Fi 비밀번호 바꾸기</span><em>15쪽</em></a>
     <a data-page="16" class="sub"><i></i><span>AUTO 액션</span><em>16쪽</em></a>
     <a data-page="20"><i>7</i><span>펌웨어 업데이트</span><em>20쪽</em></a>
-    <a data-page="21"><i>8</i><span>보호 기능과 알림</span><em>21쪽</em></a>
-    <a data-page="23"><i>9</i><span>재시작과 초기화</span><em>23쪽</em></a>
-    <a data-page="24"><i>10</i><span>문제 해결</span><em>24쪽</em></a>
-    <a data-page="25"><i>11</i><span>제품 사양</span><em>25쪽</em></a>
-    <a data-page="26"><i>·</i><span>제품 정보 · 품질 보증과 문의</span><em>26쪽</em></a>
+    <a data-page="21" class="sub"><i></i><span>신규 펌웨어 자동 받기</span><em>21쪽</em></a>
+    <a data-page="23"><i>8</i><span>보호 기능과 알림</span><em>23쪽</em></a>
+    <a data-page="25"><i>9</i><span>재시작과 초기화</span><em>25쪽</em></a>
+    <a data-page="26"><i>10</i><span>문제 해결</span><em>26쪽</em></a>
+    <a data-page="27"><i>11</i><span>제품 사양</span><em>27쪽</em></a>
+    <a data-page="28"><i>·</i><span>제품 정보 · 품질 보증과 문의</span><em>28쪽</em></a>
   </div>
   <p class="note">누르면 그 쪽부터 열립니다. 아이폰은 첫 쪽부터 열리니 쪽 번호를 보고 넘겨 주세요.</p>
 </section>
@@ -167,7 +168,7 @@ a.row svg{color:var(--sub);flex:0 0 auto}
   // ===== 설정 (새 PDF를 올릴 때 여기 VER와 위 '업데이트' 날짜 · 쪽 수 · 크기만 고침) =====
   // 판 번호는 화면에 보이지 않음 (사용자 2026-11-12: 늘 최신 설명서만)
   var PDF = "TuFModule_manual.pdf";
-  var VER = "202611131555"; // 올린 날짜(같은 날 다시 올리면 시각까지) — 바꾸면 휴대폰에 남아 있는 예전 PDF 대신 새 PDF를 받음 (화면에 안 보임)
+  var VER = "202611140420"; // 올린 날짜(같은 날 다시 올리면 시각까지) — 바꾸면 휴대폰에 남아 있는 예전 PDF 대신 새 PDF를 받음 (화면에 안 보임)
   var STORE_URL = "https://mkt.shopping.naver.com/link/6af5cdc349689b475d360787";   // 스마트스토어 주소를 넣으면 아래 '문의' 줄이 보임
   // =====================================================================
   var $ = function (id) { return document.getElementById(id); };
