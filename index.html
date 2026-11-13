@@ -73,10 +73,19 @@ summary::after{content:"+";color:var(--sub);font-weight:400}
 details[open] summary::after{content:"−"}
 details p,details ul{color:var(--sub);font-size:14px;margin:6px 0 0}
 details ul{padding-left:20px}
-.old{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
-.old:first-child{border-top:0}
-.old a{color:var(--acc);text-decoration:none;font-weight:500;white-space:nowrap}
-.old span{color:var(--sub)}
+.oldv{border-top:1px solid var(--line);padding:0;margin:0}
+.oldv:first-child{border-top:0}
+.oldv summary{align-items:center;padding:10px 0;font-weight:400;font-size:14px}
+.oldv summary::after{content:none}
+.oldv .ovn{display:flex;align-items:center;gap:6px;min-width:0}
+.oldv .ovn b{font-weight:600}
+.oldv .ovn span{color:var(--sub)}
+.oldv .chev{flex:0 0 auto;color:var(--sub);transition:transform .15s}
+.oldv[open] .chev{transform:rotate(90deg)}
+.oldv summary a{color:var(--acc);text-decoration:none;font-weight:500;white-space:nowrap;padding:4px 0 4px 12px}
+.oldn{margin:0 0 12px;padding:12px 14px;border-top:0;background:var(--bg);border-radius:12px;font-size:14px}
+.oldn p,.oldn ul{color:var(--ink)}
+.oldn img{background:var(--card)}
 .note{font-size:13px;color:var(--sub);margin:10px 2px 0}
 footer{margin:24px 2px 0;color:var(--sub);font-size:12.5px;line-height:1.7}
 footer a{color:var(--sub)}
@@ -168,7 +177,7 @@ details a{color:var(--acc)}
 <section class="card" aria-labelledby="oldT" id="oldCard" hidden>
   <h2 id="oldT">지난 버전</h2>
   <div id="oldList"></div>
-  <p class="note">문제가 있을 때 안내를 받은 경우에만 지난 버전을 올려 주세요.</p>
+  <p class="note">버전을 누르면 그 버전에서 바뀐 내용이 보입니다. 문제가 있을 때 안내를 받은 경우에만 지난 버전을 올려 주세요.</p>
 </section>
 
 <footer>
@@ -311,14 +320,29 @@ details a{color:var(--acc)}
     }
     if (rel.body && rel.body.trim()) { $("notes").innerHTML = renderNotes(rel.body); $("notes").hidden = false; }
   }
+  // 지난 버전: 버전을 누르면 그 릴리즈 설명(최신과 같은 방식으로 그림)이 펼쳐짐, 오른쪽 '받기'는 바로 받기
+  var CHEV = '<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function notesInto(box, rel) {
+    try {
+      if (rel.body_html && rel.body_html.trim()) { var c = cleanHtml(rel.body_html); while (c.firstChild) box.appendChild(c.firstChild); }
+      else if (rel.body && rel.body.trim()) box.innerHTML = renderNotes(rel.body);
+    } catch (e) { if (rel.body && rel.body.trim()) box.innerHTML = renderNotes(rel.body); }
+    if (!box.firstChild) box.innerHTML = "<p>이 버전은 설명이 없습니다.</p>";
+  }
   function showOld(list) {
-    var rows = list.slice(1, 1 + OLD_MAX).map(function (rel) {
+    var box = $("oldList"); box.textContent = "";
+    list.slice(1, 1 + OLD_MAX).forEach(function (rel) {
       var a = pickAsset(rel), v = a ? parseName(a.name) : null;
       var name = v ? v.main : (rel.name || rel.tag_name);
-      return '<div class="old"><div>' + esc(name) + ' <span>· ' + esc(fmtDate(rel.published_at)) + '</span></div>' +
-        '<a href="' + esc(a ? a.browser_download_url : rel.html_url) + '">받기</a></div>';
+      var d = document.createElement("details"); d.className = "oldv";
+      var sm = document.createElement("summary");
+      sm.innerHTML = '<span class="ovn">' + CHEV + '<b>' + esc(name) + '</b><span>· ' + esc(fmtDate(rel.published_at)) + '</span></span>';
+      var dl = document.createElement("a"); dl.href = a ? a.browser_download_url : rel.html_url; dl.textContent = "받기";
+      sm.appendChild(dl); d.appendChild(sm);
+      var n = document.createElement("div"); n.className = "notes oldn"; notesInto(n, rel);
+      d.appendChild(n); box.appendChild(d);
     });
-    if (rows.length) { $("oldList").innerHTML = rows.join(""); $("oldCard").hidden = false; }
+    if (box.firstChild) $("oldCard").hidden = false;
   }
   function fallback() {
     $("ver").textContent = "최신 버전";
