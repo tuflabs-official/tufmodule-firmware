@@ -86,6 +86,8 @@ details ul{padding-left:20px}
 .oldn{margin:0 0 12px;padding:12px 14px;border-top:0;background:var(--bg);border-radius:12px;font-size:14px}
 .oldn p,.oldn ul{color:var(--ink)}
 .oldn img{background:var(--card)}
+#oldMore[hidden],#oldAll[hidden]{display:none}
+.oldall{display:block;margin-top:10px;text-align:center;font-size:13.5px;color:var(--acc);text-decoration:none}
 .note{font-size:13px;color:var(--sub);margin:10px 2px 0}
 footer{margin:24px 2px 0;color:var(--sub);font-size:12.5px;line-height:1.7}
 footer a{color:var(--sub)}
@@ -177,6 +179,8 @@ details a{color:var(--acc)}
 <section class="card" aria-labelledby="oldT" id="oldCard" hidden>
   <h2 id="oldT">지난 버전</h2>
   <div id="oldList"></div>
+  <button type="button" class="btn ghost" id="oldMore" hidden></button>
+  <a class="oldall" id="oldAll" href="#" target="_blank" rel="noopener noreferrer" hidden>더 지난 버전은 GitHub 배포 페이지에서 보기</a>
   <p class="note">버전을 누르면 그 버전에서 바뀐 내용이 보입니다. 문제가 있을 때 안내를 받은 경우에만 지난 버전을 올려 주세요.</p>
 </section>
 
@@ -192,7 +196,9 @@ details a{color:var(--acc)}
   // ===== 설정 =====
   var OWNER = "tuflabs-official", REPO = "tufmodule-firmware";
   var STORE_URL = "https://mkt.shopping.naver.com/link/6af5cdc349689b475d360787";   // 스마트스토어 주소를 넣으면 아래 '문의' 줄이 보임 (예: "https://smartstore.naver.com/…")
-  var OLD_MAX = 5;      // 지난 버전 몇 개까지 보일지
+  var OLD_SHOW = 3;     // 지난 버전 처음에 보일 개수 (나머지는 '더보기')
+  var OLD_STEP = 5;     // '더보기'를 한 번 누를 때 더 보일 개수
+  var FETCH_MAX = 30;   // GitHub에서 한 번에 읽는 릴리즈 수 (최신 포함) — 더 오래된 것은 배포 페이지 링크로
   // ================
   var API = "https://api.github.com/repos/" + OWNER + "/" + REPO + "/releases";
   var RELEASES = "https://github.com/" + OWNER + "/" + REPO + "/releases";
@@ -331,7 +337,8 @@ details a{color:var(--acc)}
   }
   function showOld(list) {
     var box = $("oldList"); box.textContent = "";
-    list.slice(1, 1 + OLD_MAX).forEach(function (rel) {
+    var rows = [];
+    list.slice(1).forEach(function (rel) {
       var a = pickAsset(rel), v = a ? parseName(a.name) : null;
       var name = v ? v.main : (rel.name || rel.tag_name);
       var d = document.createElement("details"); d.className = "oldv";
@@ -340,9 +347,24 @@ details a{color:var(--acc)}
       var dl = document.createElement("a"); dl.href = a ? a.browser_download_url : rel.html_url; dl.textContent = "받기";
       sm.appendChild(dl); d.appendChild(sm);
       var n = document.createElement("div"); n.className = "notes oldn"; notesInto(n, rel);
-      d.appendChild(n); box.appendChild(d);
+      d.appendChild(n); box.appendChild(d); rows.push(d);
     });
-    if (box.firstChild) $("oldCard").hidden = false;
+    if (!rows.length) return;
+    // 처음엔 OLD_SHOW개만, '더보기'를 누를 때마다 OLD_STEP개씩 더
+    var shown = 0, more = $("oldMore");
+    function reveal(k) {
+      shown = Math.min(rows.length, shown + k);
+      rows.forEach(function (d, i) { d.hidden = i >= shown; });
+      var left = rows.length - shown;
+      more.hidden = left <= 0;
+      if (left > 0) more.textContent = "지난 버전 더보기 (" + left + "개)";
+      // 읽어 온 것보다 더 오래된 릴리즈가 있을 수 있으면 마지막에 배포 페이지 링크
+      $("oldAll").hidden = !(left <= 0 && list.length >= FETCH_MAX);
+    }
+    more.onclick = function () { reveal(OLD_STEP); };
+    $("oldAll").href = RELEASES;
+    reveal(OLD_SHOW);
+    $("oldCard").hidden = false;
   }
   function fallback() {
     $("ver").textContent = "최신 버전";
@@ -351,7 +373,7 @@ details a{color:var(--acc)}
     $("dlT").textContent = "배포 페이지에서 받기";
   }
 
-  fetch(API + "?per_page=" + (OLD_MAX + 1), { headers: { "Accept": "application/vnd.github.full+json" } })
+  fetch(API + "?per_page=" + FETCH_MAX, { headers: { "Accept": "application/vnd.github.full+json" } })
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(function (list) {
       list = (list || []).filter(function (r) { return !r.draft && !r.prerelease; });
