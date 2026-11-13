@@ -173,7 +173,7 @@ details a{color:var(--acc)}
 
 <footer>
   TuFModule 펌웨어는 TuFLabs가 서명한 파일만 설치됩니다. 다른 곳에서 받은 파일은 올리지 마세요.<br>
-  <span id="storeLine" hidden>문의: <a id="storeLink" href="#">스마트스토어 문의하기</a><br></span>
+  <span id="storeLine" hidden>문의: <a id="storeLink" href="#">스마트스토어 Q&amp;A</a><br></span>
   © TuFLabs
 </footer>
 </div>
@@ -182,7 +182,7 @@ details a{color:var(--acc)}
 (function () {
   // ===== 설정 =====
   var OWNER = "tuflabs-official", REPO = "tufmodule-firmware";
-  var STORE_URL = "";   // 스마트스토어 주소를 넣으면 아래 '문의' 줄이 보임 (예: "https://smartstore.naver.com/…")
+  var STORE_URL = "https://mkt.shopping.naver.com/link/6af5cdc349689b475d360787";   // 스마트스토어 주소를 넣으면 아래 '문의' 줄이 보임 (예: "https://smartstore.naver.com/…")
   var OLD_MAX = 5;      // 지난 버전 몇 개까지 보일지
   // ================
   var API = "https://api.github.com/repos/" + OWNER + "/" + REPO + "/releases";
@@ -259,7 +259,8 @@ details a{color:var(--acc)}
 
   // GitHub이 그린 설명(body_html)을 허용한 태그 · 속성만 남겨 넣음 — 이미지(<img> · 끌어다 놓은 사진)도 보임
   //   사진 주소는 GitHub이 몇 분짜리 서명 주소로 바꿔 주므로 페이지를 열 때마다 새로 받음
-  var IMG_OK = /^https:\/\/(private-user-images\.githubusercontent\.com|user-images\.githubusercontent\.com|raw\.githubusercontent\.com|github\.com\/user-attachments|camo\.githubusercontent\.com)\//;
+  //   릴리즈 첨부로 올린 사진(…/tufmodule-firmware/releases/download/<태그>/<이름>.png, REST 등록 2026-11-14~)도 허용
+  var IMG_OK = /^https:\/\/(private-user-images\.githubusercontent\.com|user-images\.githubusercontent\.com|raw\.githubusercontent\.com|github\.com\/user-attachments|github\.com\/tuflabs-official\/tufmodule-firmware\/releases\/download|camo\.githubusercontent\.com)\//;
   var TAGS = { P: "p", UL: "ul", OL: "ol", LI: "li", STRONG: "b", B: "b", EM: "i", I: "i", CODE: "code", BR: "br", HR: "hr",
                H1: "h3", H2: "h3", H3: "h3", H4: "h3", H5: "h3", H6: "h3", BLOCKQUOTE: "p", A: "a", IMG: "img" };
   function cleanHtml(html) {
