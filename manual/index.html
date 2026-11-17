@@ -114,11 +114,11 @@ a.row svg{color:var(--sub);flex:0 0 auto}
   <div class="lbl" id="latestT">TuFModule</div>
   <div class="ver">최신 사용설명서</div>
   <div class="vsub" id="vsub">2026-11-17 · 펌웨어 버전 <b>26.11.17.062</b> 기준 · <span style="white-space:nowrap">PDF 6.5 MB</span></div>
-  <a class="btn" data-pdf href="TuFModule_manual.pdf?v=202611170640">
+  <a class="btn" data-pdf href="TuFModule_manual.pdf?v=202611171614">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3.5h7l4.5 4.5v12.5H7z M14 3.5V8h4.5 M10 12.5h5.5 M10 16h5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span>설명서 보기</span>
   </a>
-  <a class="btn ghost" data-pdf href="TuFModule_manual.pdf?v=202611170640" download="TuFModule_manual.pdf">
+  <a class="btn ghost" data-pdf href="TuFModule_manual.pdf?v=202611171614" download="TuFModule_manual.pdf">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span>휴대폰에 저장</span>
   </a>
@@ -157,7 +157,7 @@ a.row svg{color:var(--sub);flex:0 0 auto}
 </section>
 
 <footer>
-  설명서 내용은 최신 펌웨어에 맞게끔 주기적으로 업데이트 됩니다.<br>
+  설명서 내용은 최신 펌웨어에 맞춰 수시로 업데이트됩니다.<br>
   <span id="storeLine" hidden>문의: <a id="storeLink" href="#">스마트스토어 Q&amp;A</a><br></span>
   © TuFLabs
 </footer>
@@ -168,7 +168,7 @@ a.row svg{color:var(--sub);flex:0 0 auto}
   // ===== 설정 (새 PDF를 올릴 때 여기 VER와 위 '업데이트' 날짜 · 쪽 수 · 크기만 고침) =====
   // 판 번호는 화면에 보이지 않음 (사용자 2026-11-12: 늘 최신 설명서만)
   var PDF = "TuFModule_manual.pdf";
-  var VER = "202611170640"; // 올린 날짜(같은 날 다시 올리면 시각까지) — 바꾸면 휴대폰에 남아 있는 예전 PDF 대신 새 PDF를 받음 (화면에 안 보임)
+  var VER = "202611171614"; // 올린 날짜(같은 날 다시 올리면 시각까지) — 바꾸면 휴대폰에 남아 있는 예전 PDF 대신 새 PDF를 받음 (화면에 안 보임)
   var STORE_URL = "https://mkt.shopping.naver.com/link/6af5cdc349689b475d360787";   // 스마트스토어 주소를 넣으면 아래 '문의' 줄이 보임
   // =====================================================================
   var $ = function (id) { return document.getElementById(id); };
@@ -203,7 +203,7 @@ a.row svg{color:var(--sub);flex:0 0 auto}
     }
     $("inappCopy").onclick = function () {
       var url = location.href, b = $("inappCopy");
-      var done = function () { b.textContent = "복사했습니다 · Safari · Chrome 주소창에 붙여 넣어 주세요"; };
+      var done = function () { b.textContent = "복사했습니다. Safari나 Chrome 주소창에 붙여 넣어 주세요"; };
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, function () { prompt("주소를 길게 눌러 복사해 주세요", url); });
       else prompt("주소를 길게 눌러 복사해 주세요", url);
     };
