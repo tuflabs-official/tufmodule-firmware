@@ -98,6 +98,12 @@ a.row{display:flex;align-items:center;justify-content:space-between;gap:12px;col
 a.row b{color:var(--ink);font-size:15px;font-weight:600}
 a.row svg{color:var(--sub);flex:0 0 auto}
 details a{color:var(--acc)}
+.card.beta{border-color:color-mix(in srgb,var(--acc) 35%,var(--line))}
+.tag{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:var(--acc-soft);color:var(--acc);font-size:11.5px;font-weight:700;letter-spacing:0}
+.beta .lead{margin:12px 0 0}
+.beta details.bnotes{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.bnotes .notes{margin-top:8px;padding-top:0;border-top:0}
+#betaCard[hidden],#faqBeta[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -126,6 +132,20 @@ details a{color:var(--acc)}
   </a>
   <div class="fname" id="fname"></div>
   <div class="notes" id="notes" hidden></div>
+</section>
+
+<section class="card beta" aria-labelledby="betaT" id="betaCard" hidden>
+  <div class="lbl" id="betaT">베타 펌웨어<span class="tag">시험판</span></div>
+  <div class="ver" id="bver"></div>
+  <div class="vsub" id="bvsub"></div>
+  <p class="lead">정식 배포 전에 새 기능을 먼저 써 볼 수 있는 펌웨어입니다. 정식보다 확인이 덜 되어 예상과 다르게 동작할 수 있습니다. 새 기능을 먼저 써 보고 싶은 분만 받아 주세요.</p>
+  <details class="bnotes"><summary>베타에서 바뀐 내용</summary><div class="notes" id="bnotes"></div></details>
+  <a class="btn ghost" id="bdl" href="#">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span id="bdlT">베타 펌웨어 받기</span>
+  </a>
+  <div class="fname" id="bfname"></div>
+  <p class="note">올리는 방법은 아래 업데이트 방법과 같습니다. 모듈 설정 › 신규 펌웨어 자동 받기에서 <b>베타 펌웨어도 받기</b>를 켜 두면 모듈이 베타도 알아서 받아 둡니다. 정식으로 돌아가려면 위 <b>펌웨어 받기</b>로 정식 파일을 받아 같은 방법으로 올려 주세요. 설정은 그대로 남습니다.</p>
 </section>
 
 <section class="card" aria-labelledby="howT">
@@ -164,6 +184,10 @@ details a{color:var(--acc)}
   <details>
     <summary>업데이트 중에 연결이 끊겼어요</summary>
     <p>연결이 끊겨도 모듈은 업데이트를 끝까지 진행합니다. 1 ~ 2분 뒤 모듈 Wi-Fi에 다시 연결하면 첫 화면에 결과가 나옵니다. 진행 중에는 모듈 LED가 차례로 켜지고, 끝나면 LED 4개가 함께 깜빡입니다. 천천히 3번이면 완료, 빠르게 깜빡이면 실패입니다.</p>
+  </details>
+  <details id="faqBeta" hidden>
+    <summary>베타 펌웨어에서 정식으로 돌아가고 싶어요</summary>
+    <p>모듈 설정 › 신규 펌웨어 자동 받기에서 <strong>베타 펌웨어도 받기</strong>를 끄면 다음 정식 펌웨어부터 정식만 받습니다. 바로 돌아가려면 이 페이지 위 <strong>펌웨어 받기</strong>로 정식 파일을 받아 업데이트 방법대로 올려 주세요. 설정은 그대로 남습니다.</p>
   </details>
   <details>
     <summary>모듈 Wi-Fi 비밀번호를 모르겠어요</summary>
@@ -369,6 +393,21 @@ details a{color:var(--acc)}
     reveal(OLD_SHOW);
     $("oldCard").hidden = false;
   }
+  // 베타 = 시험판 릴리즈 중 PKG_…b_ 파일이 있는 것, 정식 최신보다 새것일 때만 보임
+  function pkgNum(rel) { var a = pickAsset(rel), m = a && /PKG_(\d{9})/i.exec(a.name); return m ? +m[1] : 0; }
+  function showBeta(all, latest) {
+    var b = all.filter(function (r) { return !r.draft && r.prerelease && /PKG_\d{9}b_/i.test((pickAsset(r) || {}).name || ""); })[0];
+    if (!b || (latest && pkgNum(b) <= pkgNum(latest))) return;
+    var a = pickAsset(b), v = parseName(a.name);
+    $("bver").textContent = v ? v.main + " 베타" : b.name;
+    $("bvsub").innerHTML = (v ? "메인 <b>" + esc(v.main) + "</b> · 서브 <b>" + esc(v.sub) + "</b> · " : "") + esc(fmtDate(b.published_at)) + " 배포";
+    $("bdl").href = a.browser_download_url; $("bdl").setAttribute("download", a.name);
+    $("bdlT").textContent = "베타 펌웨어 받기 · " + fmtSize(a.size);
+    $("bfname").textContent = a.name;
+    notesInto($("bnotes"), b);
+    $("betaCard").hidden = false;
+    $("faqBeta").hidden = false;   // '정식으로 돌아가고 싶어요'도 베타 칸이 보일 때만 (2026-11-24 사용자)
+  }
   function fallback() {
     $("ver").textContent = "최신 버전";
     $("vsub").textContent = "버전 정보를 불러오지 못했습니다. 아래 버튼을 누르면 배포 페이지에서 받을 수 있습니다.";
@@ -379,10 +418,11 @@ details a{color:var(--acc)}
   fetch(API + "?per_page=" + FETCH_MAX, { headers: { "Accept": "application/vnd.github.full+json" } })
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(function (list) {
-      list = (list || []).filter(function (r) { return !r.draft && !r.prerelease; });
+      var all = list || []; list = all.filter(function (r) { return !r.draft && !r.prerelease; });
       if (!list.length) throw new Error("no release");
       showLatest(list[0]);
       showOld(list);
+      try { showBeta(all, list[0]); } catch (e) { /* 베타 칸만 안 보임 — 최신 · 지난 버전은 그대로 */ }
     })
     .catch(fallback);
 })();
