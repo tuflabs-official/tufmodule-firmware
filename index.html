@@ -93,6 +93,7 @@ details ul{padding-left:20px}
 .lead strong{font-weight:600}
 footer{margin:24px 2px 0;color:var(--sub);font-size:12.5px;line-height:1.7}
 footer a{color:var(--sub)}
+#visitLine b{color:var(--ink);font-weight:500;font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums}   /* 방문자 수 (GoatCounter) */
 .ok{color:var(--ok);font-weight:600}
 a.row{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--sub);text-decoration:none;font-size:13.5px}
 a.row b{color:var(--ink);font-size:15px;font-weight:600}
@@ -214,6 +215,7 @@ details a{color:var(--acc)}
 <footer>
   TuFModule에는 TuFLabs가 서명한 펌웨어 파일만 설치됩니다. 다른 곳에서 받은 파일은 올리지 마세요.<br>
   <span id="storeLine" hidden>문의: <a id="storeLink" href="#">스마트스토어 Q&amp;A</a><br></span>
+  <span id="visitLine" hidden>방문자 오늘 <b id="visitToday">–</b> · 누적 <b id="visitTotal">–</b><br></span>
   © TuFLabs
 </footer>
 </div>
@@ -427,5 +429,40 @@ details a{color:var(--acc)}
     .catch(fallback);
 })();
 </script>
+<script>
+// 방문자 수 (GoatCounter tuflabs — 사이트 전체 TOTAL, 2026-11-29 사용자): 누적을 받으면 줄을 보이고, 오늘은 받으면 숫자 · 못 받으면 '–'
+//   누적을 못 받거나 8초 넘게 걸리면 줄은 숨긴 채 — 위 펌웨어 칸과 따로 돌아 페이지 동작에 영향 없음. 응답은 GoatCounter가 최대 4시간 캐시
+(function () {
+  try {
+    var GC = "https://tuflabs.goatcounter.com/counter/TOTAL.json";
+    var line = document.getElementById("visitLine");
+    if (!line || !window.fetch) return;
+    var today = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);   // 한국 날짜 YYYY-MM-DD (브라우저 시간대와 무관)
+    var get = function (url, zero404) {
+      var ctl = window.AbortController ? new AbortController() : null;
+      var t = ctl ? setTimeout(function () { ctl.abort(); }, 8000) : 0;
+      return fetch(url, ctl ? { signal: ctl.signal } : {}).then(function (r) {
+        clearTimeout(t);
+        if (zero404 && r.status === 404) return { count: "0" };   // 오늘 방문이 아직 없음
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      });
+    };
+    var num = function (j) { var v = (j && j.count != null) ? String(j.count).trim() : ""; return /^\d{1,3}(,\d{3})*$|^\d+$/.test(v) ? v : null; };   // "1,234" 꼴만
+    get(GC, false).then(function (j) {
+      var total = num(j);
+      if (total === null) return;
+      document.getElementById("visitTotal").textContent = total;
+      line.hidden = false;
+      return get(GC + "?start=" + today, true).then(function (k) {
+        var d = num(k);
+        if (d !== null) document.getElementById("visitToday").textContent = d;
+      });
+    }).catch(function () { /* 누적 전이면 숨긴 채, 오늘만 실패면 '–' */ });
+  } catch (e) { /* 숨긴 채 */ }
+})();
+</script>
+<!-- 방문 집계 (GoatCounter tuflabs, 2026-11-29 사용자): 쿠키 없음 · 개인 정보 저장 없음 → 동의 창 없음. localhost · file: 미리보기는 count.js가 세지 않음 -->
+<script data-goatcounter="https://tuflabs.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>
